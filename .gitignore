@@ -1,0 +1,26 @@
+# Secretos y archivos sensibles
+.env
+*.pem
+*.key
+*.crt
+*.srl
+*.csr
+
+# Archivos temporales de editores
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Logs
+*.log
+
+# Datos de contenedores (si se montan localmente)
+data/

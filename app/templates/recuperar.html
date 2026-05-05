@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Recuperar Contraseña{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Recuperar contraseña</h2>
+    <p>Ingresa tu nombre de usuario (UID). Si existe en el sistema, recibirás un enlace de recuperación en tu correo registrado.</p>
+    <form method="POST">
+        <label for="uid">Usuario (UID)</label>
+        <input type="text" id="uid" name="uid" required>
+
+        <br><br>
+        <button class="btn primary" type="submit">Enviar enlace</button>
+        <a class="btn" href="{{ url_for('index') }}">Volver</a>
+    </form>
+</div>
+{% endblock %}

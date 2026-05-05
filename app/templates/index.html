@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Usuarios{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Usuarios registrados</h2>
+    {% if users %}
+    <table>
+        <thead>
+            <tr>
+                <th>UID</th>
+                <th>Nombre (CN)</th>
+                <th>Apellido (SN)</th>
+                <th>Correo</th>
+                <th>Tiene contraseña</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.uid }}</td>
+                <td>{{ u.cn }}</td>
+                <td>{{ u.sn }}</td>
+                <td>{{ u.mail }}</td>
+                <td>{{ 'Sí' if u.has_password else 'No' }}</td>
+                <td class="row-actions">
+                    <a class="btn primary small" href="{{ url_for('editar', uid=u.uid) }}">Editar</a>
+                    <form method="POST" action="{{ url_for('eliminar', uid=u.uid) }}" onsubmit="return confirm('¿Eliminar usuario?');">
+                        <button class="btn danger small" type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No hay usuarios registrados. <a href="{{ url_for('crear') }}">Crea el primero</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

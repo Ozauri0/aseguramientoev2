@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Crear Usuario{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Crear usuario</h2>
+    <form method="POST">
+        <label for="uid">Usuario (UID)</label>
+        <input type="text" id="uid" name="uid" required>
+
+        <label for="cn">Nombre (CN)</label>
+        <input type="text" id="cn" name="cn" required>
+
+        <label for="sn">Apellido (SN)</label>
+        <input type="text" id="sn" name="sn" required>
+
+        <label for="mail">Correo electrónico</label>
+        <input type="email" id="mail" name="mail">
+
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required>
+
+        <br><br>
+        <button class="btn primary" type="submit">Guardar</button>
+        <a class="btn" href="{{ url_for('index') }}">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

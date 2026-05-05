@@ -1,0 +1,50 @@
+services:
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: openldap
+    hostname: openldap
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      LDAP_TLS: "true"
+      LDAP_TLS_VERIFY_CLIENT: "try"
+      LDAP_TLS_CA_CRT_FILENAME: ca-cert.pem
+      LDAP_TLS_CRT_FILENAME: ldap-cert.pem
+      LDAP_TLS_KEY_FILENAME: ldap-key.pem
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+      - ./pki/ca-cert.pem:/container/service/slapd/assets/certs/ca-cert.pem
+      - ./pki/ldap-cert/ldap-cert.pem:/container/service/slapd/assets/certs/ldap-cert.pem
+      - ./pki/ldap-cert/ldap-key.pem:/container/service/slapd/assets/certs/ldap-key.pem
+    networks:
+      - ldap_network
+
+  app:
+    build: ./app
+    container_name: crud_app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./pki/ca-cert.pem:/app/certs/ca-cert.pem:ro
+    depends_on:
+      - openldap
+    networks:
+      - ldap_network
+
+volumes:
+  ldap_data:
+  ldap_config:
+
+networks:
+  ldap_network:
+    driver: bridge

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestión LDAP{% endblock %}</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --danger: #d93025;
+            --success: #188038;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #202124;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+            background: var(--bg); color: var(--text);
+        }
+        header {
+            background: var(--primary); color: white; padding: 1rem 2rem;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        header a { color: white; text-decoration: none; font-weight: 600; }
+        nav a { margin-left: 1rem; font-size: 0.95rem; }
+        .container { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+        .card {
+            background: var(--card); border-radius: 8px; padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .alert { padding: 0.8rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+        .alert.danger { background: #fce8e6; color: #9e1c16; }
+        .alert.success { background: #e6f4ea; color: #0d5f2e; }
+        .alert.info { background: #e8f0fe; color: #1a73e8; }
+        .alert.warning { background: #fef7e0; color: #b06000; }
+        table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+        th, td { text-align: left; padding: 0.6rem; border-bottom: 1px solid #e0e0e0; }
+        th { font-weight: 600; color: #5f6368; }
+        .btn {
+            display: inline-block; padding: 0.5rem 0.8rem; border-radius: 6px;
+            text-decoration: none; font-size: 0.9rem; border: none; cursor: pointer;
+        }
+        .btn.primary { background: var(--primary); color: white; }
+        .btn.danger { background: var(--danger); color: white; }
+        .btn.small { padding: 0.35rem 0.5rem; font-size: 0.85rem; }
+        form label { display: block; margin: 0.8rem 0 0.3rem; font-weight: 500; }
+        form input[type="text"], form input[type="email"], form input[type="password"] {
+            width: 100%; padding: 0.5rem; border: 1px solid #dadce0; border-radius: 6px;
+        }
+        .row-actions form { display: inline; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('index') }}">🔐 Gestión de Usuarios LDAP</a>
+        <nav>
+            <a href="{{ url_for('crear') }}">Crear Usuario</a>
+            <a href="{{ url_for('recuperar') }}">Recuperar Contraseña</a>
+        </nav>
+    </header>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Restablecer Contraseña{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Restablecer contraseña para <code>{{ uid }}</code></h2>
+    <form method="POST">
+        <label for="password">Nueva contraseña</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="confirm">Confirmar contraseña</label>
+        <input type="password" id="confirm" name="confirm" required>
+
+        <br><br>
+        <button class="btn primary" type="submit">Restablecer</button>
+    </form>
+</div>
+{% endblock %}

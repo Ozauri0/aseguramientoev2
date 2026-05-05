@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Editar Usuario{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Editar usuario: {{ user.uid.value }}</h2>
+    <form method="POST">
+        <label for="cn">Nombre (CN)</label>
+        <input type="text" id="cn" name="cn" value="{{ user.cn.value or '' }}" required>
+
+        <label for="sn">Apellido (SN)</label>
+        <input type="text" id="sn" name="sn" value="{{ user.sn.value or '' }}" required>
+
+        <label for="mail">Correo electrónico</label>
+        <input type="email" id="mail" name="mail" value="{{ user.mail.value or '' }}">
+
+        <label for="password">Nueva contraseña (dejar en blanco para no cambiar)</label>
+        <input type="password" id="password" name="password">
+
+        <br><br>
+        <button class="btn primary" type="submit">Actualizar</button>
+        <a class="btn" href="{{ url_for('index') }}">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
