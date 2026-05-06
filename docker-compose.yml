@@ -1,4 +1,21 @@
 services:
+  # Contenedor init: copia los certificados a un named volume con permisos Unix correctos.
+  # Necesario en Windows porque Docker Desktop no permite chmod en bind mounts de Windows.
+  cert-init:
+    image: alpine:3.19
+    volumes:
+      - ldap_certs:/certs
+      - ./pki:/source:ro
+    command: >
+      sh -c "
+        cp /source/ca-cert.pem /certs/ca-cert.pem &&
+        cp /source/ldap-cert/ldap-cert.pem /certs/ldap-cert.pem &&
+        cp /source/ldap-cert/ldap-key.pem /certs/ldap-key.pem &&
+        chmod 644 /certs/ca-cert.pem /certs/ldap-cert.pem &&
+        chmod 600 /certs/ldap-key.pem &&
+        chown 911:911 /certs/ldap-key.pem
+      "
+
   openldap:
     image: osixia/openldap:1.5.0
     container_name: openldap
@@ -18,9 +35,10 @@ services:
     volumes:
       - ldap_data:/var/lib/ldap
       - ldap_config:/etc/ldap/slapd.d
-      - ./pki/ca-cert.pem:/container/service/slapd/assets/certs/ca-cert.pem
-      - ./pki/ldap-cert/ldap-cert.pem:/container/service/slapd/assets/certs/ldap-cert.pem
-      - ./pki/ldap-cert/ldap-key.pem:/container/service/slapd/assets/certs/ldap-key.pem
+      - ldap_certs:/container/service/slapd/assets/certs
+    depends_on:
+      cert-init:
+        condition: service_completed_successfully
     networks:
       - ldap_network
 
@@ -44,6 +62,7 @@ services:
 volumes:
   ldap_data:
   ldap_config:
+  ldap_certs:
 
 networks:
   ldap_network:

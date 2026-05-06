@@ -13,6 +13,7 @@ from urllib.parse import urlencode
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from ldap3 import Server, Connection, ALL, Tls, MODIFY_REPLACE
+from ldap3.utils.conv import escape_filter_chars
 from ldap3.utils.hashed import hashed
 import ldap3
 
@@ -187,7 +188,7 @@ def login():
         conn = get_ldap_connection()
         conn.search(
             LDAP_USER_BASE_DN,
-            f"(uid={uid})",
+            f"(uid={escape_filter_chars(uid)})",
             attributes=["uid"],
         )
         if not conn.entries:
@@ -294,7 +295,7 @@ def recuperar():
         conn = get_ldap_connection()
         conn.search(
             LDAP_USER_BASE_DN,
-            f"(uid={uid})",
+            f"(uid={escape_filter_chars(uid)})",
             attributes=["uid", "mail"],
         )
         if not conn.entries:
