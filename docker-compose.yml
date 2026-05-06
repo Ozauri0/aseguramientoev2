@@ -1,20 +1,31 @@
 services:
-  # Contenedor init: copia los certificados a un named volume con permisos Unix correctos.
-  # Necesario en Windows porque Docker Desktop no permite chmod en bind mounts de Windows.
+  # Contenedor init: genera la CA y los certificados del servidor LDAP si no existen,
+  # y los almacena en un named volume con permisos Unix correctos.
+  # Compatible con Windows y Linux. No requiere archivos PKI en el repositorio.
   cert-init:
     image: alpine:3.19
     volumes:
       - ldap_certs:/certs
-      - ./pki:/source:ro
-    command: >
-      sh -c "
-        cp /source/ca-cert.pem /certs/ca-cert.pem &&
-        cp /source/ldap-cert/ldap-cert.pem /certs/ldap-cert.pem &&
-        cp /source/ldap-cert/ldap-key.pem /certs/ldap-key.pem &&
-        chmod 644 /certs/ca-cert.pem /certs/ldap-cert.pem &&
-        chmod 600 /certs/ldap-key.pem &&
+    command:
+      - sh
+      - -c
+      - |
+        if [ -f /certs/ca-cert.pem ] && [ -f /certs/ldap-cert.pem ] && [ -f /certs/ldap-key.pem ]; then
+          echo 'Certificados ya existentes, omitiendo generacion.'; exit 0;
+        fi
+        apk add --no-cache openssl
+        echo '==> Generando CA...'
+        openssl genrsa -out /certs/ca-key.pem 4096
+        openssl req -x509 -new -nodes -key /certs/ca-key.pem -sha256 -days 3650 -out /certs/ca-cert.pem -subj '/C=CL/ST=Santiago/L=Santiago/O=MiOrg/OU=Seguridad/CN=Mi CA Interna'
+        echo '==> Generando certificado del servidor LDAP...'
+        openssl genrsa -out /certs/ldap-key.pem 2048
+        openssl req -new -key /certs/ldap-key.pem -out /certs/ldap.csr -subj '/C=CL/ST=Santiago/L=Santiago/O=MiOrg/OU=Infraestructura/CN=openldap'
+        printf 'subjectAltName=DNS:openldap,DNS:localhost,IP:127.0.0.1' > /certs/san.ext
+        openssl x509 -req -in /certs/ldap.csr -CA /certs/ca-cert.pem -CAkey /certs/ca-key.pem -CAcreateserial -out /certs/ldap-cert.pem -days 825 -sha256 -extfile /certs/san.ext
+        chmod 644 /certs/ca-cert.pem /certs/ldap-cert.pem
+        chmod 600 /certs/ldap-key.pem /certs/ca-key.pem
         chown 911:911 /certs/ldap-key.pem
-      "
+        echo '==> Certificados generados correctamente.'
 
   openldap:
     image: osixia/openldap:1.5.0
@@ -53,9 +64,12 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./pki/ca-cert.pem:/app/certs/ca-cert.pem:ro
+      - ldap_certs:/app/certs:ro
     depends_on:
-      - openldap
+      cert-init:
+        condition: service_completed_successfully
+      openldap:
+        condition: service_started
     networks:
       - ldap_network
 
