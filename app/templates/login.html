@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Probar Contraseña{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>🔑 Probar autenticación (Login)</h2>
+    <p> Este endpoint permite verificar si una contraseña es correcta contra el hash {SSHA} almacenado en OpenLDAP. Úsalo para demostrar que:</p>
+    <ul>
+        <li>La contraseña original funciona después de crear el usuario.</li>
+        <li>Al editar la contraseña, la <strong>nueva</strong> funciona y la <strong>vieja</strong> ya no.</li>
+        <li>El hashing SSHA permite autenticación sin almacenar texto plano.</li>
+    </ul>
+    <form method="POST">
+        <label for="uid">Usuario (UID)</label>
+        <input type="text" id="uid" name="uid" required>
+
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required>
+
+        <br><br>
+        <button class="btn primary" type="submit">Probar Login</button>
+        <a class="btn" href="{{ url_for('index') }}">Volver</a>
+    </form>
+</div>
+{% endblock %}

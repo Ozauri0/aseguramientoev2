@@ -172,6 +172,51 @@ def eliminar(uid):
     return redirect(url_for("index"))
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Endpoint para probar autenticación de contraseñas SSHA contra LDAP."""
+    if request.method == "POST":
+        uid = request.form["uid"].strip()
+        password = request.form["password"]
+
+        if not all([uid, password]):
+            flash("Ingresa usuario y contraseña.", "danger")
+            return redirect(url_for("login"))
+
+        # Buscar el DN del usuario
+        conn = get_ldap_connection()
+        conn.search(
+            LDAP_USER_BASE_DN,
+            f"(uid={uid})",
+            attributes=["uid"],
+        )
+        if not conn.entries:
+            conn.unbind()
+            flash("Usuario o contraseña incorrectos.", "danger")
+            return redirect(url_for("login"))
+
+        user_dn = conn.entries[0].entry_dn
+        conn.unbind()
+
+        # Intentar autenticar (bind) con las credenciales del usuario
+        tls = Tls(
+            validate=ssl_lib.CERT_REQUIRED,
+            ca_certs_file=CA_CERT_PATH,
+            version=ssl_lib.PROTOCOL_TLS_CLIENT,
+        )
+        server = Server(LDAP_URI, use_ssl=True, tls=tls, get_info=ALL)
+        try:
+            user_conn = Connection(server, user=user_dn, password=password, auto_bind=True)
+            user_conn.unbind()
+            flash(f"✅ Autenticación exitosa para '{uid}'. La contraseña es correcta.", "success")
+        except Exception:
+            flash("❌ Autenticación fallida. Usuario o contraseña incorrectos.", "danger")
+
+        return redirect(url_for("login"))
+
+    return render_template("login.html")
+
+
 # =====================
 # Flujo de recuperación
 # =====================

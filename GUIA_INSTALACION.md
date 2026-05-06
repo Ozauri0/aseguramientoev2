@@ -240,6 +240,37 @@ Debe mostrar:
 -rw------- 1 tu_usuario tu_usuario ... .env
 ```
 
+### 6.6 Probar autenticación de contraseñas (endpoint `/login`)
+
+La app incluye un endpoint especial para demostrar que el hashing SSHA funciona correctamente:
+
+1. **Accede a**: `http://localhost:5000/login`
+2. **Ingresa** el UID y la contraseña de un usuario existente.
+3. **Resultado esperado**:
+   - ✅ *"Autenticación exitosa..."* si la contraseña coincide con el hash SSHA en LDAP.
+   - ❌ *"Autenticación fallida..."* si la contraseña es incorrecta.
+
+**Flujo de demostración recomendado para la defensa:**
+
+```bash
+# Paso 1: Login con contraseña actual (debe funcionar)
+curl -X POST -d "uid=jperez&password=MI_PASS_ACTUAL" http://localhost:5000/login
+
+# Paso 2: Editar usuario y cambiar contraseña
+# (hazlo desde la interfaz web en /editar/jperez)
+
+# Paso 3: Login con nueva contraseña (debe funcionar)
+curl -X POST -d "uid=jperez&password=MI_PASS_NUEVA" http://localhost:5000/login
+
+# Paso 4: Login con contraseña vieja (debe FALLAR)
+curl -X POST -d "uid=jperez&password=MI_PASS_ACTUAL" http://localhost:5000/login
+```
+
+Esto demuestra que:
+- El hash SSHA permite autenticación sin almacenar texto plano.
+- Al cambiar la contraseña, el hash se actualiza y la vieja deja de funcionar inmediatamente.
+- LDAP valida la contraseña de forma segura usando el salt incluido en el hash.
+
 ---
 
 ## 7. Probar el flujo de recuperación de contraseña
@@ -395,6 +426,7 @@ Antes de presentar tu trabajo, verifica:
 - [ ] Solicitas recuperación de contraseña y recibes un enlace (o se muestra en pantalla si no hay SMTP).
 - [ ] El enlace funciona dentro de 15 minutos.
 - [ ] El enlace caduca después de 15 minutos.
+- [ ] El endpoint `/login` autentica correctamente con la contraseña actual y rechaza la vieja después de editar.
 - [ ] No hay contraseñas ni secretos escritos directamente en `app/app.py`.
 - [ ] El archivo `.env` tiene permisos `600` y está listado en `.gitignore`.
 - [ ] Completaste la **Matriz de Trazabilidad** en `EXPLICACION.md`.

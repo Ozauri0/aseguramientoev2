@@ -58,7 +58,7 @@ Porque separan la configuración sensible del código fuente. Si el repositorio 
 
 | Control Técnico | Implementación Realizada | Función NIST 2.0 | Art. Ley 21.459 Relacionado |
 |---|---|---|---|
-| **Cifrado de canal** | LDAPS / TLS 1.3 entre app y OpenLDAP | **Proteger (PR)** | Art. 3 (Interceptación): Prohibición de interceptar datos en tránsito sin autorización. Al cifrar el canal, incluso si hay interceptación, los datos permanecen confidenciales. |
+| **Cifrado de canal** | LDAPS / TLS 1.2 entre app y OpenLDAP | **Proteger (PR)** | Art. 3 (Interceptación): Prohibición de interceptar datos en tránsito sin autorización. Al cifrar el canal, incluso si hay interceptación, los datos permanecen confidenciales. |
 | **Integridad de URL** | Token HMAC-SHA256 con expiración y UID | **Identificar (ID)** | Art. 2 (Acceso Ilícito): La firma HMAC permite identificar si un enlace fue alterado. Un token inválido se rechaza, evitando que un atacante genere enlaces de recuperación para cuentas ajenas. |
 | **Manejo de Secretos** | Variables de entorno / `.env` con permisos 600 | **Proteger (PR)** | Art. 2 (Exceder permisos): Al no hardcodear credenciales, se reduce el riesgo de que un atacante que acceda al código fuente (lectura no autorizada) pueda escalar privilegios hacia otros sistemas (LDAP, correo). |
 
